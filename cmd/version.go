@@ -12,9 +12,7 @@ func newVersionCmd() *cobra.Command {
 		Use:   "version",
 		Short: "Print version information",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("gosla version %s\n", version.Version)
-			fmt.Printf("  commit: %s\n", version.CommitSHA)
-			fmt.Printf("  built:  %s\n", version.BuildTime)
+			fmt.Println(version.Info())
 		},
 	}
 }
