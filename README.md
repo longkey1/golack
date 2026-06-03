@@ -18,7 +18,33 @@ make build
 
 ## Usage
 
-### Environment Variables
+### Configuration
+
+gosla can be configured via a config file, environment variables, or CLI flags.
+Precedence is: **CLI flag > environment variable > config file**.
+
+#### Config File
+
+The default location is `$XDG_CONFIG_HOME/gosla/config.toml` (falling back to
+`~/.config/gosla/config.toml`). A different path can be supplied via `--config`.
+
+```toml
+# ~/.config/gosla/config.toml
+token   = "xoxp-..."
+author  = "your-username"
+mention = ["U12345678", "@john.doe", "@team-name"]
+```
+
+Values may reference environment variables with `${VAR}`; they are expanded at
+load time. This lets you keep secrets out of the file:
+
+```toml
+token   = "${SLACK_API_TOKEN}"
+author  = "${SLACK_AUTHOR}"
+mention = ["${SLACK_MENTION_USER}", "@team-name"]
+```
+
+#### Environment Variables
 
 ```bash
 export SLACK_API_TOKEN="xoxp-..."  # Required
@@ -102,6 +128,7 @@ gosla version
 | Flag | Description | Default |
 |------|-------------|---------|
 | `--token` | Slack API token | `$SLACK_API_TOKEN` |
+| `--config` | Path to config file | `$XDG_CONFIG_HOME/gosla/config.toml` |
 
 ### get Flags
 
