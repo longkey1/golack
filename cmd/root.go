@@ -36,6 +36,7 @@ It supports:
 	rootCmd.AddCommand(newListCmd())
 	rootCmd.AddCommand(newHistoryCmd())
 	rootCmd.AddCommand(newMergeCmd())
+	rootCmd.AddCommand(newConfigCmd())
 	rootCmd.AddCommand(newVersionCmd())
 
 	return rootCmd
