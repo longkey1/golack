@@ -157,6 +157,24 @@ gosla merge ./logs -r -p "*.json"
 
 Output is written to stdout.
 
+#### config
+
+Show the effective configuration values, resolved from the config file,
+environment variables, and flags (in increasing order of precedence) — the same
+resolution the other commands use.
+
+```bash
+# List all configuration values as key=value lines
+gosla config list
+
+# Get a single configuration value
+gosla config get token
+gosla config get author
+gosla config get mention
+```
+
+Valid keys are `token`, `author`, and `mention`.
+
 #### version
 
 ```bash
