@@ -34,6 +34,7 @@ It supports:
 	// Add subcommands
 	rootCmd.AddCommand(newGetCmd())
 	rootCmd.AddCommand(newListCmd())
+	rootCmd.AddCommand(newHistoryCmd())
 	rootCmd.AddCommand(newMergeCmd())
 	rootCmd.AddCommand(newVersionCmd())
 

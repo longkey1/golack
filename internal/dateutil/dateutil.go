@@ -75,8 +75,3 @@ func (dr DateRange) Days() []time.Time {
 func FormatDate(t time.Time) string {
 	return t.Format("2006-01-02")
 }
-
-// OutputPath returns the output path for a given date
-func OutputPath(t time.Time) string {
-	return fmt.Sprintf("logs/%d/%02d/%02d/slack.json", t.Year(), t.Month(), t.Day())
-}

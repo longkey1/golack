@@ -68,10 +68,11 @@ gosla get "https://xxx.slack.com/archives/C123/p456" --thread
 
 #### list
 
-Collect messages for a date range and save to files.
+Collect messages for a date range. The result is written to stdout as a single
+JSON document, or to a file with `--output`.
 
 ```bash
-# Collect messages for a specific day
+# Collect messages for a specific day (printed to stdout)
 gosla list --day 2025-01-15
 
 # Collect messages for an entire month
@@ -80,20 +81,59 @@ gosla list --month 2025-01
 # Collect messages for a custom date range
 gosla list --from 2025-01-01 --to 2025-01-15
 
+# Write to a file instead of stdout
+gosla list --month 2025-01 --output 2025-01.json
+
 # Combine options
 gosla list -m 2025-01 --thread --author U12345678
+
+# Filter by mention (multiple mentions are OR-matched: messages to ANY of them)
 gosla list -d 2025-01-15 --mention U111 --mention @john.doe --mention @team
+
+# Disable the author/mention defaults from the config file for this run
+gosla list -d 2025-01-15 --no-mention
+gosla list -d 2025-01-15 --no-author --no-mention
 
 # Filter by channels
 gosla list -m 2025-01 --channel general --channel random
 gosla list -d 2025-01-15 --exclude-channel announcements
 gosla list -m 2025-01 --channel general,random --exclude-channel bot-logs
 
-# Parallel execution
-gosla list -m 2025-01 --parallel 4
+# Parallel execution, piped to jq
+gosla list -m 2025-01 --parallel 4 | jq '.[].channel'
 ```
 
-Output is saved to `logs/YYYY/MM/DD/slack.json`.
+Output is a single JSON array of threads, written to stdout by default (progress
+is written to stderr, so it never mixes with the JSON). Use `--output FILE` to
+write to a file instead.
+
+> **Note:** `--mention` filters via Slack's `search.messages` API, which cannot
+> match `@channel`/`@here` broadcasts. Use the `history` command to collect those.
+
+#### history
+
+Collect **all** messages in the given channels for a date range. Unlike `list`,
+no author/mention filtering is applied, so `@channel`/`@here` broadcasts and
+every other message in the channel are included.
+
+```bash
+# Collect a channel's full history for a day (by name)
+gosla history --day 2025-01-15 --channel general
+
+# Multiple channels, by name or ID (names resolved via conversations.list)
+gosla history -m 2025-01 --channel general,random
+gosla history -d 2025-01-15 --channel C0123ABCD
+
+# Expand threads and run in parallel
+gosla history -m 2025-01 --channel general --thread --parallel 4
+
+# Write to a file instead of stdout
+gosla history -m 2025-01 --channel general --output history.json
+```
+
+`--channel` and a date range are both required. Like `list`, the result is a
+single JSON array of threads written to stdout by default; use `--output FILE`
+to write to a file.
 
 #### merge
 
@@ -153,10 +193,33 @@ gosla version
 |------|-------|-------------|---------|
 | `--thread` | | Fetch entire threads | `false` |
 | `--author` | | Filter by author | `$SLACK_AUTHOR` |
-| `--mention` | | Filter by mention (User ID or `@username`/`@group-name`, repeatable) | `$SLACK_MENTION` |
+| `--mention` | | Filter by mention (User ID or `@username`/`@group-name`, repeatable; OR matched) | `$SLACK_MENTION` |
+| `--no-author` | | Disable the author filter even if set in config | `false` |
+| `--no-mention` | | Disable the mention filter even if set in config | `false` |
 | `--channel` | | Filter by channel name (repeatable, comma-separated) | |
 | `--exclude-channel` | | Exclude channel name (repeatable, comma-separated) | |
 | `--parallel` | `-p` | Number of parallel workers | `1` |
+| `--output` | `-o` | Write JSON to this file (default: stdout) | |
+
+### history Flags
+
+**Date Range (mutually exclusive, one required):**
+
+| Flag | Short | Description |
+|------|-------|-------------|
+| `--day` | `-d` | Single day (YYYY-MM-DD) |
+| `--month` | `-m` | Entire month (YYYY-MM) |
+| `--from` | | Start date (YYYY-MM-DD, inclusive) |
+| `--to` | | End date (YYYY-MM-DD, inclusive) |
+
+**Other Flags:**
+
+| Flag | Short | Description | Default |
+|------|-------|-------------|---------|
+| `--channel` | | Channels to collect, by name or ID (repeatable, comma-separated); **required** | |
+| `--thread` | | Fetch entire threads | `false` |
+| `--parallel` | `-p` | Number of parallel workers | `1` |
+| `--output` | `-o` | Write JSON to this file (default: stdout) | |
 
 ### merge Flags
 

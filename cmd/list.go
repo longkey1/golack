@@ -2,13 +2,14 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"sync"
 	"time"
 
 	"github.com/longkey1/gosla/internal/collector"
 	"github.com/longkey1/gosla/internal/config"
 	"github.com/longkey1/gosla/internal/dateutil"
-	"github.com/longkey1/gosla/internal/output"
+	"github.com/longkey1/gosla/internal/model"
 	"github.com/longkey1/gosla/internal/slack"
 	"github.com/spf13/cobra"
 )
@@ -21,9 +22,12 @@ var (
 	listThread          bool
 	listAuthor          string
 	listMentions        []string
+	listNoAuthor        bool
+	listNoMention       bool
 	listChannels        []string
 	listExcludeChannels []string
 	listParallel        int
+	listOutput          string
 )
 
 func newListCmd() *cobra.Command {
@@ -56,10 +60,13 @@ Examples:
 	cmd.Flags().StringVar(&listTo, "to", "", "End date (YYYY-MM-DD)")
 	cmd.Flags().BoolVar(&listThread, "thread", false, "Get entire threads")
 	cmd.Flags().StringVar(&listAuthor, "author", "", "Filter by author")
-	cmd.Flags().StringSliceVar(&listMentions, "mention", nil, "Filter by mention (comma-separated User IDs or @group-names)")
+	cmd.Flags().StringSliceVar(&listMentions, "mention", nil, "Filter by mention (comma-separated User IDs or @group-names; OR matched)")
+	cmd.Flags().BoolVar(&listNoAuthor, "no-author", false, "Disable the author filter even if set in config")
+	cmd.Flags().BoolVar(&listNoMention, "no-mention", false, "Disable the mention filter even if set in config")
 	cmd.Flags().StringSliceVar(&listChannels, "channel", nil, "Filter by channel (comma-separated channel names)")
 	cmd.Flags().StringSliceVar(&listExcludeChannels, "exclude-channel", nil, "Exclude channels (comma-separated channel names)")
 	cmd.Flags().IntVarP(&listParallel, "parallel", "p", 1, "Number of parallel workers")
+	cmd.Flags().StringVarP(&listOutput, "output", "o", "", "Write JSON to this file (default: stdout)")
 
 	return cmd
 }
@@ -75,10 +82,16 @@ func runList(cmd *cobra.Command, args []string) error {
 	if token != "" {
 		cfg.Token = token
 	}
-	if listAuthor == "" {
+	// --no-author/--no-mention explicitly disable the filter, taking precedence
+	// over both the config default and any value given on the command line.
+	if listNoAuthor {
+		listAuthor = ""
+	} else if listAuthor == "" {
 		listAuthor = cfg.Author
 	}
-	if len(listMentions) == 0 {
+	if listNoMention {
+		listMentions = nil
+	} else if len(listMentions) == 0 {
 		listMentions = cfg.Mention
 	}
 
@@ -87,7 +100,7 @@ func runList(cmd *cobra.Command, args []string) error {
 	}
 
 	// Parse date range
-	dateRange, err := parseDateRange()
+	dateRange, err := parseDateRange(listDay, listMonth, listFrom, listTo)
 	if err != nil {
 		return err
 	}
@@ -101,44 +114,46 @@ func runList(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("no days to process")
 	}
 
-	fmt.Printf("Collecting messages for %d day(s)...\n", len(days))
+	fmt.Fprintf(os.Stderr, "Collecting messages for %d day(s)...\n", len(days))
 
 	// Process days with parallelism
 	results := processdays(client, days, listParallel)
 
-	// Report results
-	var errors []error
+	// Collect threads and errors from all days
+	var allThreads []model.Thread
+	var errs []error
 	for _, result := range results {
 		if result.Error != nil {
-			errors = append(errors, fmt.Errorf("%s: %w", dateutil.FormatDate(result.Date), result.Error))
-		} else {
-			fmt.Printf("[INFO] %s: %d threads collected, saved to %s\n",
-				dateutil.FormatDate(result.Date),
-				len(result.Threads),
-				dateutil.OutputPath(result.Date))
+			errs = append(errs, fmt.Errorf("%s: %w", dateutil.FormatDate(result.Date), result.Error))
+			continue
 		}
+		allThreads = append(allThreads, result.Threads...)
 	}
 
-	if len(errors) > 0 {
-		for _, err := range errors {
-			fmt.Printf("[ERROR] %v\n", err)
+	if len(errs) > 0 {
+		for _, err := range errs {
+			fmt.Fprintf(os.Stderr, "[ERROR] %v\n", err)
 		}
-		return fmt.Errorf("%d day(s) failed", len(errors))
+		return fmt.Errorf("%d day(s) failed", len(errs))
 	}
 
-	return nil
+	sortThreads(allThreads)
+
+	return writeThreads(allThreads, listOutput)
 }
 
-func parseDateRange() (dateutil.DateRange, error) {
+// parseDateRange validates and parses the mutually exclusive date options
+// shared by the list and history commands.
+func parseDateRange(day, month, from, to string) (dateutil.DateRange, error) {
 	// Count how many date options are specified
 	count := 0
-	if listDay != "" {
+	if day != "" {
 		count++
 	}
-	if listMonth != "" {
+	if month != "" {
 		count++
 	}
-	if listFrom != "" || listTo != "" {
+	if from != "" || to != "" {
 		count++
 	}
 
@@ -149,20 +164,20 @@ func parseDateRange() (dateutil.DateRange, error) {
 		return dateutil.DateRange{}, fmt.Errorf("only one date range option allowed: --day, --month, or --from/--to")
 	}
 
-	if listDay != "" {
-		day, err := dateutil.ParseDay(listDay)
+	if day != "" {
+		d, err := dateutil.ParseDay(day)
 		if err != nil {
 			return dateutil.DateRange{}, err
 		}
-		return dateutil.DayRange(day), nil
+		return dateutil.DayRange(d), nil
 	}
 
-	if listMonth != "" {
-		return dateutil.ParseMonth(listMonth)
+	if month != "" {
+		return dateutil.ParseMonth(month)
 	}
 
-	if listFrom != "" && listTo != "" {
-		return dateutil.CustomRange(listFrom, listTo)
+	if from != "" && to != "" {
+		return dateutil.CustomRange(from, to)
 	}
 
 	return dateutil.DateRange{}, fmt.Errorf("--from and --to must both be specified")
@@ -226,34 +241,6 @@ func processDay(client *slack.Client, day time.Time) collector.DayResult {
 		return collector.DayResult{
 			Date:  day,
 			Error: err,
-		}
-	}
-
-	// Write to file
-	outputPath := dateutil.OutputPath(day)
-	writer, err := output.NewFileWriter(outputPath)
-	if err != nil {
-		return collector.DayResult{
-			Date:  day,
-			Error: fmt.Errorf("failed to create output file: %w", err),
-		}
-	}
-	defer writer.Close()
-
-	if len(result.Threads) > 0 {
-		if err := writer.Write(result.Threads); err != nil {
-			return collector.DayResult{
-				Date:  day,
-				Error: fmt.Errorf("failed to write output: %w", err),
-			}
-		}
-	} else {
-		// Write empty array
-		if err := writer.Write([]interface{}{}); err != nil {
-			return collector.DayResult{
-				Date:  day,
-				Error: fmt.Errorf("failed to write output: %w", err),
-			}
 		}
 	}
 

@@ -23,12 +23,30 @@ type SearchOptions struct {
 
 const searchMaxRetries = 5
 
-// SearchMessages searches for messages matching the given options
+// SearchMessages searches for messages matching the given options.
+//
+// When multiple mentions are specified they are treated as OR: each mention
+// produces its own query (Slack search has no OR operator for the to: modifier),
+// and the results are merged and deduplicated. processedThreads is shared across
+// queries so a thread surfaced by more than one mention is fetched only once.
 func (c *Client) SearchMessages(opts SearchOptions) ([]model.Message, error) {
 	var allMessages []model.Message
 	processedThreads := make(map[string]bool)
 
-	query := c.buildSearchQuery(opts)
+	for _, query := range c.buildSearchQueries(opts) {
+		msgs, err := c.searchByQuery(query, processedThreads)
+		if err != nil {
+			return nil, err
+		}
+		allMessages = append(allMessages, msgs...)
+	}
+
+	return c.deduplicateMessages(allMessages), nil
+}
+
+// searchByQuery runs a single search query, paging through all results.
+func (c *Client) searchByQuery(query string, processedThreads map[string]bool) ([]model.Message, error) {
+	var messages []model.Message
 	params := slack.SearchParameters{
 		Count: 100,
 		Sort:  "timestamp",
@@ -78,14 +96,14 @@ func (c *Client) SearchMessages(opts SearchOptions) ([]model.Message, error) {
 					if err != nil {
 						// Log error but continue
 						fmt.Printf("[WARN] Failed to get thread %s: %v\n", threadTS, err)
-						allMessages = append(allMessages, msg)
+						messages = append(messages, msg)
 					} else {
-						allMessages = append(allMessages, threadMsgs...)
+						messages = append(messages, threadMsgs...)
 					}
 					processedThreads[threadTS] = true
 				}
 			} else {
-				allMessages = append(allMessages, msg)
+				messages = append(messages, msg)
 			}
 		}
 
@@ -99,23 +117,36 @@ func (c *Client) SearchMessages(opts SearchOptions) ([]model.Message, error) {
 		time.Sleep(time.Second)
 	}
 
-	return c.deduplicateMessages(allMessages), nil
+	return messages, nil
 }
 
-func (c *Client) buildSearchQuery(opts SearchOptions) string {
+// buildSearchQueries builds one query per mention so that multiple mentions are
+// matched as OR. With no mentions it returns a single query without a mention
+// filter.
+func (c *Client) buildSearchQueries(opts SearchOptions) []string {
+	base := buildBaseQueryParts(opts)
+
+	if len(opts.Mentions) == 0 {
+		return []string{strings.Join(base, " ")}
+	}
+
+	queries := make([]string, 0, len(opts.Mentions))
+	for _, mention := range opts.Mentions {
+		parts := make([]string, len(base), len(base)+1)
+		copy(parts, base)
+		parts = append(parts, mentionQueryPart(mention))
+		queries = append(queries, strings.Join(parts, " "))
+	}
+	return queries
+}
+
+// buildBaseQueryParts builds the query modifiers shared by every query (all
+// filters except the mention).
+func buildBaseQueryParts(opts SearchOptions) []string {
 	var parts []string
 
 	if opts.Author != "" {
 		parts = append(parts, fmt.Sprintf("from:%s", opts.Author))
-	}
-
-	for _, mention := range opts.Mentions {
-		// Handle both user IDs and group mentions
-		if strings.HasPrefix(mention, "@") || strings.HasPrefix(mention, "U") {
-			parts = append(parts, fmt.Sprintf("to:%s", mention))
-		} else {
-			parts = append(parts, fmt.Sprintf("@%s", mention))
-		}
 	}
 
 	for _, channel := range opts.Channels {
@@ -137,7 +168,16 @@ func (c *Client) buildSearchQuery(opts SearchOptions) string {
 	// Exclude DMs and group DMs
 	parts = append(parts, "-is:dm", "-is:mpdm")
 
-	return strings.Join(parts, " ")
+	return parts
+}
+
+// mentionQueryPart builds the search modifier for a single mention, handling
+// both user IDs / @-prefixed names (to:) and bare group names (@name).
+func mentionQueryPart(mention string) string {
+	if strings.HasPrefix(mention, "@") || strings.HasPrefix(mention, "U") {
+		return fmt.Sprintf("to:%s", mention)
+	}
+	return fmt.Sprintf("@%s", mention)
 }
 
 func (c *Client) convertSearchMatch(match slack.SearchMessage) model.Message {

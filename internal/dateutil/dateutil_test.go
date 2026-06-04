@@ -115,12 +115,3 @@ func TestDateRange_Days(t *testing.T) {
 		}
 	}
 }
-
-func TestOutputPath(t *testing.T) {
-	date := time.Date(2025, 1, 15, 0, 0, 0, 0, time.UTC)
-	want := "logs/2025/01/15/slack.json"
-	got := OutputPath(date)
-	if got != want {
-		t.Errorf("OutputPath() = %v, want %v", got, want)
-	}
-}
