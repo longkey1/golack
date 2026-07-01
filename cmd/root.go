@@ -8,6 +8,7 @@ import (
 var (
 	token      string
 	configPath string
+	resolveIDs bool
 )
 
 // NewRootCmd creates the root command
@@ -30,6 +31,7 @@ It supports:
 	// Global flags
 	rootCmd.PersistentFlags().StringVar(&token, "token", "", "Slack API token (overrides SLACK_API_TOKEN)")
 	rootCmd.PersistentFlags().StringVar(&configPath, "config", "", "Path to config file (default: $XDG_CONFIG_HOME/gosla/config.toml)")
+	rootCmd.PersistentFlags().BoolVar(&resolveIDs, "resolve-ids", false, "Resolve Slack user/channel IDs in message content to human-readable names")
 
 	// Add subcommands
 	rootCmd.AddCommand(newGetCmd())

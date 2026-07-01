@@ -5,6 +5,7 @@ import (
 
 	"github.com/longkey1/gosla/internal/collector"
 	"github.com/longkey1/gosla/internal/config"
+	"github.com/longkey1/gosla/internal/model"
 	"github.com/longkey1/gosla/internal/output"
 	"github.com/longkey1/gosla/internal/slack"
 	"github.com/spf13/cobra"
@@ -60,6 +61,12 @@ func runGet(cmd *cobra.Command, args []string) error {
 	result, err := collector.Get(client, opts)
 	if err != nil {
 		return fmt.Errorf("failed to get message: %w", err)
+	}
+
+	if resolveIDs {
+		resolver := slack.NewResolver(client)
+		resolved := resolver.ResolveThreads([]model.Thread{*result})
+		result = &resolved[0]
 	}
 
 	// Output to stdout

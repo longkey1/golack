@@ -130,6 +130,11 @@ func runHistory(cmd *cobra.Command, args []string) error {
 
 	sortThreads(allThreads)
 
+	if resolveIDs {
+		resolver := slack.NewResolver(client)
+		allThreads = resolver.ResolveThreads(allThreads)
+	}
+
 	return writeThreads(allThreads, historyOutput)
 }
 
