@@ -11,29 +11,31 @@ import (
 //
 //	group 1,2: <@USERID|name>
 //	group 3,4: <#CHANNELID|name>
-//	group 5:   <!subteam^...|label>
-//	group 6:   <!here|channel|everyone>
+//	group 5,6: <!subteam^ID|label>
+//	group 7:   <!here|channel|everyone>
 var slackRefRe = regexp.MustCompile(
 	`<@([A-Z0-9]+)(?:\|([^>]+))?>` +
 		`|<#([A-Z0-9]+)(?:\|([^>]+))?>` +
-		`|<!subteam\^[A-Z0-9]+(?:\|([^>]+))?>` +
+		`|<!subteam\^([A-Z0-9]+)(?:\|([^>]+))?>` +
 		`|<!(here|channel|everyone)>`,
 )
 
 // Resolver resolves Slack IDs in message content to human-readable names.
 type Resolver struct {
-	client       *Client
-	mu           sync.RWMutex
-	userCache    map[string]string
-	channelCache map[string]string
+	client         *Client
+	mu             sync.RWMutex
+	userCache      map[string]string
+	channelCache   map[string]string
+	usergroupCache map[string]string
 }
 
 // NewResolver creates a new Resolver.
 func NewResolver(client *Client) *Resolver {
 	return &Resolver{
-		client:       client,
-		userCache:    make(map[string]string),
-		channelCache: make(map[string]string),
+		client:         client,
+		userCache:      make(map[string]string),
+		channelCache:   make(map[string]string),
+		usergroupCache: make(map[string]string),
 	}
 }
 
@@ -73,10 +75,13 @@ func (r *Resolver) resolveContent(text string) string {
 				return "#" + sub[4]
 			}
 			return "#" + r.lookupChannel(sub[3])
-		case sub[5] != "": // <!subteam^...|@label>
-			return sub[5]
-		case sub[6] != "": // <!here>, <!channel>, <!everyone>
-			return "@" + sub[6]
+		case sub[5] != "": // <!subteam^ID> or <!subteam^ID|label>
+			if sub[6] != "" {
+				return sub[6]
+			}
+			return r.lookupUsergroup(sub[5])
+		case sub[7] != "": // <!here>, <!channel>, <!everyone>
+			return "@" + sub[7]
 		}
 		return match
 	})
@@ -106,6 +111,37 @@ func (r *Resolver) lookupUser(userID string) string {
 	r.userCache[userID] = name
 	r.mu.Unlock()
 	return name
+}
+
+func (r *Resolver) lookupUsergroup(usergroupID string) string {
+	r.mu.RLock()
+	if name, ok := r.usergroupCache[usergroupID]; ok {
+		r.mu.RUnlock()
+		return name
+	}
+	r.mu.RUnlock()
+
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	// double-check after acquiring write lock
+	if name, ok := r.usergroupCache[usergroupID]; ok {
+		return name
+	}
+
+	if groups, err := r.client.api.GetUserGroups(); err == nil {
+		for _, g := range groups {
+			name := g.Handle
+			if name == "" {
+				name = g.Name
+			}
+			r.usergroupCache[g.ID] = "@" + name
+		}
+	}
+
+	if name, ok := r.usergroupCache[usergroupID]; ok {
+		return name
+	}
+	return usergroupID
 }
 
 func (r *Resolver) lookupChannel(channelID string) string {

@@ -2,6 +2,7 @@ package collector
 
 import (
 	"fmt"
+	"os"
 	"sort"
 	"time"
 
@@ -88,7 +89,7 @@ func fetchThreads(client *slack.Client, messages []model.Message) ([]model.Messa
 		// Get the entire thread
 		threadMsgs, err := client.GetThreadReplies(msg.ChannelID, threadTS)
 		if err != nil {
-			fmt.Printf("[WARN] Failed to get thread %s: %v\n", threadTS, err)
+			fmt.Fprintf(os.Stderr, "[WARN] Failed to get thread %s: %v\n", threadTS, err)
 			allMessages = append(allMessages, msg)
 			continue
 		}

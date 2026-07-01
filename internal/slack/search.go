@@ -2,6 +2,7 @@ package slack
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -95,7 +96,7 @@ func (c *Client) searchByQuery(query string, processedThreads map[string]bool) (
 					threadMsgs, err := c.GetThreadReplies(match.Channel.ID, threadTS)
 					if err != nil {
 						// Log error but continue
-						fmt.Printf("[WARN] Failed to get thread %s: %v\n", threadTS, err)
+						fmt.Fprintf(os.Stderr, "[WARN] Failed to get thread %s: %v\n", threadTS, err)
 						messages = append(messages, msg)
 					} else {
 						messages = append(messages, threadMsgs...)

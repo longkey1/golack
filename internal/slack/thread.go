@@ -2,6 +2,7 @@ package slack
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"time"
 
@@ -77,7 +78,7 @@ func (c *Client) GetThread(channelID, threadTS string) (*model.Thread, error) {
 	})
 	if err != nil {
 		// Just use channel ID if we can't get the name (might be missing scope)
-		fmt.Printf("[WARN] Could not get channel info: %v\n", err)
+		fmt.Fprintf(os.Stderr, "[WARN] Could not get channel info: %v\n", err)
 	} else {
 		channelName = channelInfo.Name
 	}
