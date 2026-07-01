@@ -267,6 +267,7 @@ The Slack API token requires the following scopes:
 - `groups:history` - Read private channel history (optional)
 - `groups:read` - Read private channel information (optional)
 - `users:read` - Resolve user IDs to display names (required for `--resolve-ids`)
+- `usergroups:read` - Resolve user group IDs to display names (required for `--resolve-ids`)
 
 ## Output Format
 
