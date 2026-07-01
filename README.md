@@ -64,6 +64,9 @@ gosla get "https://xxx.slack.com/archives/C123/p456"
 
 # Fetch the entire thread
 gosla get "https://xxx.slack.com/archives/C123/p456" --thread
+
+# Resolve user/channel IDs to human-readable names
+gosla get "https://xxx.slack.com/archives/C123/p456" --resolve-ids
 ```
 
 #### list
@@ -101,6 +104,9 @@ gosla list -m 2025-01 --channel general,random --exclude-channel bot-logs
 
 # Parallel execution, piped to jq
 gosla list -m 2025-01 --parallel 4 | jq '.[].channel'
+
+# Resolve user/channel IDs to human-readable names
+gosla list -d 2025-01-15 --resolve-ids
 ```
 
 Output is a single JSON array of threads, written to stdout by default (progress
@@ -129,6 +135,9 @@ gosla history -m 2025-01 --channel general --thread --parallel 4
 
 # Write to a file instead of stdout
 gosla history -m 2025-01 --channel general --output history.json
+
+# Resolve user/channel IDs to human-readable names
+gosla history -d 2025-01-15 --channel general --resolve-ids
 ```
 
 `--channel` and a date range are both required. Like `list`, the result is a
@@ -187,6 +196,7 @@ gosla version
 |------|-------------|---------|
 | `--token` | Slack API token | `$SLACK_API_TOKEN` |
 | `--config` | Path to config file | `$XDG_CONFIG_HOME/gosla/config.toml` |
+| `--resolve-ids` | Resolve Slack user/channel IDs in message content to human-readable names | `false` |
 
 ### get Flags
 
@@ -256,6 +266,7 @@ The Slack API token requires the following scopes:
 - `channels:read` - Read channel information
 - `groups:history` - Read private channel history (optional)
 - `groups:read` - Read private channel information (optional)
+- `users:read` - Resolve user IDs to display names (required for `--resolve-ids`)
 
 ## Output Format
 

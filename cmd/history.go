@@ -156,20 +156,16 @@ func processHistoryDays(client *slack.Client, channels []slack.ChannelRef, days 
 	// Start workers
 	var wg sync.WaitGroup
 	for i := 0; i < parallel; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			for day := range work {
 				results <- processHistoryDay(client, channels, day)
 			}
-		}()
+		})
 	}
 
 	// Wait for all workers to complete
-	go func() {
-		wg.Wait()
-		close(results)
-	}()
+	wg.Wait()
+	close(results)
 
 	// Collect results
 	var allResults []collector.DayResult

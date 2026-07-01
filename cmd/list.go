@@ -206,21 +206,16 @@ func processdays(client *slack.Client, days []time.Time, parallel int) []collect
 	// Start workers
 	var wg sync.WaitGroup
 	for i := 0; i < parallel; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			for day := range work {
-				result := processDay(client, day)
-				results <- result
+				results <- processDay(client, day)
 			}
-		}()
+		})
 	}
 
 	// Wait for all workers to complete
-	go func() {
-		wg.Wait()
-		close(results)
-	}()
+	wg.Wait()
+	close(results)
 
 	// Collect results
 	var allResults []collector.DayResult
