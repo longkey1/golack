@@ -20,13 +20,13 @@ type Message struct {
 
 // Thread represents a Slack thread with its messages
 type Thread struct {
-	ThreadID       string    `json:"thread_id"`
-	ThreadPermalink string   `json:"thread_permalink,omitempty"`
-	Channel        string    `json:"channel,omitempty"`
-	ChannelID      string    `json:"channel_id,omitempty"`
-	Messages       []Message `json:"messages"`
-	MessageCount   int       `json:"message_count,omitempty"`
-	ThreadCount    int       `json:"thread_count,omitempty"`
+	ThreadID        string    `json:"thread_id"`
+	ThreadPermalink string    `json:"thread_permalink,omitempty"`
+	Channel         string    `json:"channel,omitempty"`
+	ChannelID       string    `json:"channel_id,omitempty"`
+	Messages        []Message `json:"messages"`
+	MessageCount    int       `json:"message_count,omitempty"`
+	ThreadCount     int       `json:"thread_count,omitempty"`
 }
 
 // SearchResult represents the result of a search operation

@@ -7,7 +7,7 @@ import (
 
 // Writer interface for writing output
 type Writer interface {
-	Write(data interface{}) error
+	Write(data any) error
 }
 
 // JSONWriter writes JSON formatted output
@@ -25,7 +25,7 @@ func NewJSONWriter(w io.Writer, indent bool) *JSONWriter {
 }
 
 // Write writes the data as JSON
-func (jw *JSONWriter) Write(data interface{}) error {
+func (jw *JSONWriter) Write(data any) error {
 	encoder := json.NewEncoder(jw.w)
 	if jw.indent {
 		encoder.SetIndent("", "  ")

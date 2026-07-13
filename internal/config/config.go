@@ -39,8 +39,7 @@ func Load() (*Config, error) {
 	}
 
 	if err := v.ReadInConfig(); err != nil {
-		var notFound viper.ConfigFileNotFoundError
-		if !errors.As(err, &notFound) {
+		if _, ok := errors.AsType[viper.ConfigFileNotFoundError](err); !ok {
 			return nil, fmt.Errorf("failed to read config file: %w", err)
 		}
 		// When the user explicitly specified --config, a missing file is an error.
@@ -58,11 +57,18 @@ func Load() (*Config, error) {
 		Author: os.ExpandEnv(v.GetString("author")),
 	}
 
+	// TOML `mention` is an array; SLACK_MENTION is a comma-separated string
+	// that viper returns as a single-element slice, so split every element.
 	if raw := v.GetStringSlice("mention"); len(raw) > 0 {
-		cfg.Mention = expandSlice(raw)
-	} else if s := v.GetString("mention"); s != "" {
-		// SLACK_MENTION env var is a comma-separated string.
-		cfg.Mention = expandSlice(strings.Split(s, ","))
+		var mentions []string
+		for _, entry := range raw {
+			for part := range strings.SplitSeq(entry, ",") {
+				if part = strings.TrimSpace(part); part != "" {
+					mentions = append(mentions, part)
+				}
+			}
+		}
+		cfg.Mention = expandSlice(mentions)
 	}
 
 	return cfg, nil
