@@ -166,6 +166,45 @@ gosla merge ./logs -r -p "*.json"
 
 Output is written to stdout.
 
+#### resolve
+
+Convert between Slack IDs and names for users, channels, and usergroups —
+useful for finding the values that other commands and the config take as input
+(`--channel`, `--author`, `mention`).
+
+```bash
+# ID -> name (type detected from the ID prefix: U/W = user, C/G/D = channel, S = usergroup)
+gosla resolve U0123ABCD
+gosla resolve C0123ABCD S0123ABCD
+
+# name -> ID ("#" searches channels, "@" searches users and usergroups)
+gosla resolve "#general"
+gosla resolve "@john.doe"
+
+# Look up a user by email (users.lookupByEmail)
+gosla resolve john.doe@example.com
+
+# A bare name searches all types; restrict with --type
+gosla resolve general
+gosla resolve --type user john.doe
+
+# JSON output
+gosla resolve --json "#general"
+```
+
+Each match is printed as a TSV line (`type<TAB>id<TAB>name`), or as a JSON
+array with `--json`. Name matching is exact (username, display name, or real
+name for users; channel name; usergroup handle or name). Queries that cannot
+be resolved are reported on stderr; the command fails only when nothing could
+be resolved at all.
+
+Note: name -> ID lookups list the whole workspace directory for the queried
+type (`users.list` / `conversations.list`), which can take a while on large
+workspaces. Channel name lookups skip archived channels by default to keep
+the list small; pass `--include-archived` to search them too (slower).
+ID -> name lookups use the direct info APIs and are fast (archived channels
+included).
+
 #### config
 
 Show the effective configuration values, resolved from the config file,
@@ -257,6 +296,14 @@ gosla version
 | `--pattern` | `-p` | File name glob pattern | `*.json` |
 | `--recursive` | `-r` | Search subdirectories recursively | `false` |
 
+### resolve Flags
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--type` | Restrict lookup to one type: `user`, `channel`, or `usergroup` | |
+| `--json` | Output as a JSON array instead of TSV lines | `false` |
+| `--include-archived` | Include archived channels in channel name lookups (slower) | `false` |
+
 ## Required Permissions
 
 The Slack API token requires the following scopes:
@@ -266,8 +313,9 @@ The Slack API token requires the following scopes:
 - `channels:read` - Read channel information
 - `groups:history` - Read private channel history (optional)
 - `groups:read` - Read private channel information (optional)
-- `users:read` - Resolve user IDs to display names (required for `--resolve-ids`)
-- `usergroups:read` - Resolve user group IDs to display names (required for `--resolve-ids`)
+- `users:read` - Resolve user IDs to display names (required for `--resolve-ids` and `resolve`)
+- `users:read.email` - Look up users by email (required for `resolve` with an email query)
+- `usergroups:read` - Resolve user group IDs to display names (required for `--resolve-ids` and `resolve`)
 
 ## Output Format
 

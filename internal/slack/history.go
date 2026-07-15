@@ -41,7 +41,7 @@ func (c *Client) ResolveChannels(inputs []string) ([]ChannelRef, error) {
 
 	var byName map[string]slack.Channel
 	if needIndex {
-		channels, err := c.ListAllChannels()
+		channels, err := c.ListAllChannels(false)
 		if err != nil {
 			return nil, err
 		}
@@ -70,15 +70,17 @@ func (c *Client) ResolveChannels(inputs []string) ([]ChannelRef, error) {
 }
 
 // ListAllChannels lists all public and private channels the token can see,
-// paging through every result.
-func (c *Client) ListAllChannels() ([]slack.Channel, error) {
+// paging through every result. Archived channels are skipped when
+// excludeArchived is true, which can cut the page count considerably on
+// large workspaces.
+func (c *Client) ListAllChannels(excludeArchived bool) ([]slack.Channel, error) {
 	var all []slack.Channel
 	cursor := ""
 
 	for {
 		params := &slack.GetConversationsParameters{
 			Types:           []string{"public_channel", "private_channel"},
-			ExcludeArchived: false,
+			ExcludeArchived: excludeArchived,
 			Limit:           1000,
 			Cursor:          cursor,
 		}
