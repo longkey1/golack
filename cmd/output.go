@@ -40,7 +40,7 @@ func writeThreads(threads []model.Thread, outputPath string) error {
 	if err != nil {
 		return err
 	}
-	defer closeOutput()
+	defer func() { _ = closeOutput() }()
 
 	fmt.Fprintf(os.Stderr, "Collected %d thread(s)\n", len(threads))
 	if err := writer.Write(threads); err != nil {

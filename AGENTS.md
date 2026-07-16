@@ -13,6 +13,7 @@ make build   # Build binary to ./bin/golack
 make test    # Run tests (go test ./...)
 make fmt     # Format code
 make vet     # Vet code
+make lint    # Run golangci-lint (version managed by go.mod tool directive)
 make tidy    # Tidy dependencies
 make clean   # Remove build artifacts
 ```

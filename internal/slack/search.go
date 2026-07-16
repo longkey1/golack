@@ -109,6 +109,7 @@ func (c *Client) searchByQuery(query string, processedThreads map[string]bool) (
 		}
 
 		// Check for more pages
+		//nolint:staticcheck // SearchMessages embeds both Paging and Pagination, both with a Page field; explicit selector required to avoid ambiguity
 		if result.Paging.Pages <= result.Paging.Page {
 			break
 		}
