@@ -367,9 +367,37 @@ make build
 # Test
 make test
 
+# Format code
+make fmt
+
+# Vet code
+make vet
+
+# Lint (golangci-lint, version managed by go.mod tool directive)
+make lint
+
+# Tidy dependencies
+make tidy
+
 # Clean
 make clean
 ```
+
+### Release
+
+```bash
+# Dry run (default): shows what would happen
+make release type=patch|minor|major
+
+# Create and push a new tag
+make release type=patch dryrun=false
+
+# Re-release an existing tag
+make re-release [tag=vX.Y.Z] dryrun=false
+```
+
+Pushing a `v*` tag triggers the GitHub Actions release workflow, which builds
+multi-platform binaries with GoReleaser and uploads them to GitHub Releases.
 
 ## License
 
