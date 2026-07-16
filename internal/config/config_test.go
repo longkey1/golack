@@ -186,10 +186,10 @@ func TestLoadExplicitFileMissing(t *testing.T) {
 func TestLoadDefaultSearchPath(t *testing.T) {
 	isolateEnv(t)
 
-	// A config file placed under $XDG_CONFIG_HOME/gosla is found without an
+	// A config file placed under $XDG_CONFIG_HOME/golack is found without an
 	// explicit --config path.
 	xdg := t.TempDir()
-	dir := filepath.Join(xdg, "gosla")
+	dir := filepath.Join(xdg, "golack")
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		t.Fatal(err)
 	}

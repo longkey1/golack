@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/longkey1/gosla/internal/slack"
+	"github.com/longkey1/golack/internal/slack"
 )
 
 func TestValidateTypeFilter(t *testing.T) {

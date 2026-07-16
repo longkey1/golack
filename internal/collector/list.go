@@ -6,8 +6,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/longkey1/gosla/internal/model"
-	"github.com/longkey1/gosla/internal/slack"
+	"github.com/longkey1/golack/internal/model"
+	"github.com/longkey1/golack/internal/slack"
 )
 
 // ListOptions contains options for the list command

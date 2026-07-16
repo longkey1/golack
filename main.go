@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/longkey1/gosla/cmd"
+	"github.com/longkey1/golack/cmd"
 )
 
 func main() {

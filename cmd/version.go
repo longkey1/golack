@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/longkey1/gosla/internal/version"
+	"github.com/longkey1/golack/internal/version"
 	"github.com/spf13/cobra"
 )
 

@@ -3,11 +3,11 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/longkey1/gosla/internal/collector"
-	"github.com/longkey1/gosla/internal/config"
-	"github.com/longkey1/gosla/internal/model"
-	"github.com/longkey1/gosla/internal/output"
-	"github.com/longkey1/gosla/internal/slack"
+	"github.com/longkey1/golack/internal/collector"
+	"github.com/longkey1/golack/internal/config"
+	"github.com/longkey1/golack/internal/model"
+	"github.com/longkey1/golack/internal/output"
+	"github.com/longkey1/golack/internal/slack"
 	"github.com/spf13/cobra"
 )
 
@@ -20,8 +20,8 @@ func newGetCmd() *cobra.Command {
 		Long: `Get a message or thread from a Slack URL and output as JSON.
 
 Examples:
-  gosla get "https://xxx.slack.com/archives/C123/p456"
-  gosla get "https://xxx.slack.com/archives/C123/p456" --thread`,
+  golack get "https://xxx.slack.com/archives/C123/p456"
+  golack get "https://xxx.slack.com/archives/C123/p456" --thread`,
 		Args: cobra.ExactArgs(1),
 		RunE: runGet,
 	}

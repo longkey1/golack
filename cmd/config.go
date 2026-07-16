@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/longkey1/gosla/internal/config"
+	"github.com/longkey1/golack/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -36,8 +36,8 @@ func newConfigGetCmd() *cobra.Command {
 Valid keys: token, author, mention
 
 Examples:
-  gosla config get token
-  gosla config get mention`,
+  golack config get token
+  golack config get mention`,
 		Args: cobra.ExactArgs(1),
 		RunE: runConfigGet,
 	}

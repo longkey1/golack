@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"sync"
 
-	"github.com/longkey1/gosla/internal/model"
+	"github.com/longkey1/golack/internal/model"
 )
 
 // slackRefRe matches Slack mrkdwn reference tokens:

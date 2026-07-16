@@ -3,8 +3,8 @@ package collector
 import (
 	"time"
 
-	"github.com/longkey1/gosla/internal/model"
-	"github.com/longkey1/gosla/internal/slack"
+	"github.com/longkey1/golack/internal/model"
+	"github.com/longkey1/golack/internal/slack"
 )
 
 // HistoryOptions contains options for collecting channel history for a day.

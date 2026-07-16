@@ -5,8 +5,8 @@ import (
 	"os"
 	"sort"
 
-	"github.com/longkey1/gosla/internal/model"
-	"github.com/longkey1/gosla/internal/output"
+	"github.com/longkey1/golack/internal/model"
+	"github.com/longkey1/golack/internal/output"
 )
 
 // newOutputWriter returns a writer for the given path. An empty path writes the

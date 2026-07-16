@@ -1,4 +1,4 @@
-# gosla
+# golack
 
 Slack Log Collector CLI - A command-line tool for collecting Slack messages
 
@@ -6,13 +6,13 @@ Slack Log Collector CLI - A command-line tool for collecting Slack messages
 
 ### Download from Releases
 
-Download the binary from [Releases](https://github.com/longkey1/gosla/releases).
+Download the binary from [Releases](https://github.com/longkey1/golack/releases).
 
 ### Build from Source
 
 ```bash
-git clone https://github.com/longkey1/gosla.git
-cd gosla
+git clone https://github.com/longkey1/golack.git
+cd golack
 make build
 ```
 
@@ -20,16 +20,16 @@ make build
 
 ### Configuration
 
-gosla can be configured via a config file, environment variables, or CLI flags.
+golack can be configured via a config file, environment variables, or CLI flags.
 Precedence is: **CLI flag > environment variable > config file**.
 
 #### Config File
 
-The default location is `$XDG_CONFIG_HOME/gosla/config.toml` (falling back to
-`~/.config/gosla/config.toml`). A different path can be supplied via `--config`.
+The default location is `$XDG_CONFIG_HOME/golack/config.toml` (falling back to
+`~/.config/golack/config.toml`). A different path can be supplied via `--config`.
 
 ```toml
-# ~/.config/gosla/config.toml
+# ~/.config/golack/config.toml
 token   = "xoxp-..."
 author  = "your-username"
 mention = ["U12345678", "@john.doe", "@team-name"]
@@ -60,13 +60,13 @@ Fetch a single message or thread from a Slack URL.
 
 ```bash
 # Fetch a single message
-gosla get "https://xxx.slack.com/archives/C123/p456"
+golack get "https://xxx.slack.com/archives/C123/p456"
 
 # Fetch the entire thread
-gosla get "https://xxx.slack.com/archives/C123/p456" --thread
+golack get "https://xxx.slack.com/archives/C123/p456" --thread
 
 # Resolve user/channel IDs to human-readable names
-gosla get "https://xxx.slack.com/archives/C123/p456" --resolve-ids
+golack get "https://xxx.slack.com/archives/C123/p456" --resolve-ids
 ```
 
 #### list
@@ -76,37 +76,37 @@ JSON document, or to a file with `--output`.
 
 ```bash
 # Collect messages for a specific day (printed to stdout)
-gosla list --day 2025-01-15
+golack list --day 2025-01-15
 
 # Collect messages for an entire month
-gosla list --month 2025-01
+golack list --month 2025-01
 
 # Collect messages for a custom date range
-gosla list --from 2025-01-01 --to 2025-01-15
+golack list --from 2025-01-01 --to 2025-01-15
 
 # Write to a file instead of stdout
-gosla list --month 2025-01 --output 2025-01.json
+golack list --month 2025-01 --output 2025-01.json
 
 # Combine options
-gosla list -m 2025-01 --thread --author U12345678
+golack list -m 2025-01 --thread --author U12345678
 
 # Filter by mention (multiple mentions are OR-matched: messages to ANY of them)
-gosla list -d 2025-01-15 --mention U111 --mention @john.doe --mention @team
+golack list -d 2025-01-15 --mention U111 --mention @john.doe --mention @team
 
 # Disable the author/mention defaults from the config file for this run
-gosla list -d 2025-01-15 --no-mention
-gosla list -d 2025-01-15 --no-author --no-mention
+golack list -d 2025-01-15 --no-mention
+golack list -d 2025-01-15 --no-author --no-mention
 
 # Filter by channels
-gosla list -m 2025-01 --channel general --channel random
-gosla list -d 2025-01-15 --exclude-channel announcements
-gosla list -m 2025-01 --channel general,random --exclude-channel bot-logs
+golack list -m 2025-01 --channel general --channel random
+golack list -d 2025-01-15 --exclude-channel announcements
+golack list -m 2025-01 --channel general,random --exclude-channel bot-logs
 
 # Parallel execution, piped to jq
-gosla list -m 2025-01 --parallel 4 | jq '.[].channel'
+golack list -m 2025-01 --parallel 4 | jq '.[].channel'
 
 # Resolve user/channel IDs to human-readable names
-gosla list -d 2025-01-15 --resolve-ids
+golack list -d 2025-01-15 --resolve-ids
 ```
 
 Output is a single JSON array of threads, written to stdout by default (progress
@@ -124,20 +124,20 @@ every other message in the channel are included.
 
 ```bash
 # Collect a channel's full history for a day (by name)
-gosla history --day 2025-01-15 --channel general
+golack history --day 2025-01-15 --channel general
 
 # Multiple channels, by name or ID (names resolved via conversations.list)
-gosla history -m 2025-01 --channel general,random
-gosla history -d 2025-01-15 --channel C0123ABCD
+golack history -m 2025-01 --channel general,random
+golack history -d 2025-01-15 --channel C0123ABCD
 
 # Expand threads and run in parallel
-gosla history -m 2025-01 --channel general --thread --parallel 4
+golack history -m 2025-01 --channel general --thread --parallel 4
 
 # Write to a file instead of stdout
-gosla history -m 2025-01 --channel general --output history.json
+golack history -m 2025-01 --channel general --output history.json
 
 # Resolve user/channel IDs to human-readable names
-gosla history -d 2025-01-15 --channel general --resolve-ids
+golack history -d 2025-01-15 --channel general --resolve-ids
 ```
 
 `--channel` and a date range are both required. Like `list`, the result is a
@@ -150,18 +150,18 @@ Merge multiple JSON files and deduplicate threads/messages.
 
 ```bash
 # Merge all JSON files in a directory
-gosla merge ./logs
+golack merge ./logs
 
 # With explicit --dir flag
-gosla merge --dir ./logs
+golack merge --dir ./logs
 
 # Filter by file pattern
-gosla merge ./logs --pattern "slack*.json"
-gosla merge ./logs -p "2025-*.json"
+golack merge ./logs --pattern "slack*.json"
+golack merge ./logs -p "2025-*.json"
 
 # Recursive search (include subdirectories)
-gosla merge ./logs --recursive
-gosla merge ./logs -r -p "*.json"
+golack merge ./logs --recursive
+golack merge ./logs -r -p "*.json"
 ```
 
 Output is written to stdout.
@@ -174,22 +174,22 @@ useful for finding the values that other commands and the config take as input
 
 ```bash
 # ID -> name (type detected from the ID prefix: U/W = user, C/G/D = channel, S = usergroup)
-gosla resolve U0123ABCD
-gosla resolve C0123ABCD S0123ABCD
+golack resolve U0123ABCD
+golack resolve C0123ABCD S0123ABCD
 
 # name -> ID ("#" searches channels, "@" searches users and usergroups)
-gosla resolve "#general"
-gosla resolve "@john.doe"
+golack resolve "#general"
+golack resolve "@john.doe"
 
 # Look up a user by email (users.lookupByEmail)
-gosla resolve john.doe@example.com
+golack resolve john.doe@example.com
 
 # A bare name searches all types; restrict with --type
-gosla resolve general
-gosla resolve --type user john.doe
+golack resolve general
+golack resolve --type user john.doe
 
 # JSON output
-gosla resolve --json "#general"
+golack resolve --json "#general"
 ```
 
 Each match is printed as a TSV line (`type<TAB>id<TAB>name`), or as a JSON
@@ -213,12 +213,12 @@ resolution the other commands use.
 
 ```bash
 # List all configuration values as key=value lines
-gosla config list
+golack config list
 
 # Get a single configuration value
-gosla config get token
-gosla config get author
-gosla config get mention
+golack config get token
+golack config get author
+golack config get mention
 ```
 
 Valid keys are `token`, `author`, and `mention`.
@@ -226,7 +226,7 @@ Valid keys are `token`, `author`, and `mention`.
 #### version
 
 ```bash
-gosla version
+golack version
 ```
 
 ### Global Flags
@@ -234,7 +234,7 @@ gosla version
 | Flag | Description | Default |
 |------|-------------|---------|
 | `--token` | Slack API token | `$SLACK_API_TOKEN` |
-| `--config` | Path to config file | `$XDG_CONFIG_HOME/gosla/config.toml` |
+| `--config` | Path to config file | `$XDG_CONFIG_HOME/golack/config.toml` |
 | `--resolve-ids` | Resolve Slack user/channel IDs in message content to human-readable names | `false` |
 
 ### get Flags
@@ -323,7 +323,7 @@ Output is in JSON format, grouped by thread.
 
 **Note:** The output structure is not the raw Slack API response. Messages are transformed into a simplified, consistent format:
 
-| gosla field | Source |
+| golack field | Source |
 |-------------|--------|
 | `id` | Message timestamp (`ts`) |
 | `content` | Message text |

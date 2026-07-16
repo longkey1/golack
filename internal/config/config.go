@@ -94,10 +94,10 @@ func expandSlice(in []string) []string {
 func defaultConfigPaths() []string {
 	var paths []string
 	if xdg := os.Getenv("XDG_CONFIG_HOME"); xdg != "" {
-		paths = append(paths, filepath.Join(xdg, "gosla"))
+		paths = append(paths, filepath.Join(xdg, "golack"))
 	}
 	if home, err := os.UserHomeDir(); err == nil {
-		paths = append(paths, filepath.Join(home, ".config", "gosla"))
+		paths = append(paths, filepath.Join(home, ".config", "golack"))
 	}
 	return paths
 }

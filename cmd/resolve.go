@@ -5,9 +5,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/longkey1/gosla/internal/config"
-	"github.com/longkey1/gosla/internal/output"
-	"github.com/longkey1/gosla/internal/slack"
+	"github.com/longkey1/golack/internal/config"
+	"github.com/longkey1/golack/internal/output"
+	"github.com/longkey1/golack/internal/slack"
 	"github.com/spf13/cobra"
 )
 
@@ -51,10 +51,10 @@ Queries that cannot be resolved are reported on stderr; the command fails only
 when nothing could be resolved at all.
 
 Examples:
-  gosla resolve U0123ABCD
-  gosla resolve "#general" "@john.doe"
-  gosla resolve --type user john.doe
-  gosla resolve --json C0123ABCD S0123ABCD`,
+  golack resolve U0123ABCD
+  golack resolve "#general" "@john.doe"
+  golack resolve --type user john.doe
+  golack resolve --json C0123ABCD S0123ABCD`,
 		Args: cobra.MinimumNArgs(1),
 		RunE: runResolve,
 	}

@@ -3,7 +3,7 @@ package slack
 import (
 	"testing"
 
-	"github.com/longkey1/gosla/internal/model"
+	"github.com/longkey1/golack/internal/model"
 )
 
 // newTestResolver builds a Resolver with pre-populated caches so that no

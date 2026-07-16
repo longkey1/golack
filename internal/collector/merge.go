@@ -3,7 +3,7 @@ package collector
 import (
 	"sort"
 
-	"github.com/longkey1/gosla/internal/model"
+	"github.com/longkey1/golack/internal/model"
 )
 
 // MergeOptions specifies options for merging threads

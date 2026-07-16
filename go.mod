@@ -1,4 +1,4 @@
-module github.com/longkey1/gosla
+module github.com/longkey1/golack
 
 go 1.26
 

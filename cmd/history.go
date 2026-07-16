@@ -6,11 +6,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/longkey1/gosla/internal/collector"
-	"github.com/longkey1/gosla/internal/config"
-	"github.com/longkey1/gosla/internal/dateutil"
-	"github.com/longkey1/gosla/internal/model"
-	"github.com/longkey1/gosla/internal/slack"
+	"github.com/longkey1/golack/internal/collector"
+	"github.com/longkey1/golack/internal/config"
+	"github.com/longkey1/golack/internal/dateutil"
+	"github.com/longkey1/golack/internal/model"
+	"github.com/longkey1/golack/internal/slack"
 	"github.com/spf13/cobra"
 )
 
@@ -45,10 +45,10 @@ Channels (--channel) are required and accept either channel names or IDs;
 names are resolved to IDs via conversations.list.
 
 Examples:
-  gosla history --day 2025-01-15 --channel general
-  gosla history --month 2025-01 --channel general,random
-  gosla history -d 2025-01-15 --channel C0123ABCD --thread
-  gosla history -m 2025-01 --channel general --output history.json`,
+  golack history --day 2025-01-15 --channel general
+  golack history --month 2025-01 --channel general,random
+  golack history -d 2025-01-15 --channel C0123ABCD --thread
+  golack history -m 2025-01 --channel general --output history.json`,
 		RunE: runHistory,
 	}
 

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/longkey1/gosla/internal/model"
+	"github.com/longkey1/golack/internal/model"
 )
 
 // msg builds a message with the fields relevant to merging.

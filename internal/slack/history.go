@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/longkey1/gosla/internal/model"
+	"github.com/longkey1/golack/internal/model"
 	"github.com/slack-go/slack"
 )
 

@@ -6,11 +6,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/longkey1/gosla/internal/collector"
-	"github.com/longkey1/gosla/internal/config"
-	"github.com/longkey1/gosla/internal/dateutil"
-	"github.com/longkey1/gosla/internal/model"
-	"github.com/longkey1/gosla/internal/slack"
+	"github.com/longkey1/golack/internal/collector"
+	"github.com/longkey1/golack/internal/config"
+	"github.com/longkey1/golack/internal/dateutil"
+	"github.com/longkey1/golack/internal/model"
+	"github.com/longkey1/golack/internal/slack"
 	"github.com/spf13/cobra"
 )
 
@@ -44,13 +44,13 @@ Date range options (mutually exclusive):
   --from/--to Custom range (both required)
 
 Examples:
-  gosla list --day 2025-01-15
-  gosla list --month 2025-01
-  gosla list --from 2025-01-01 --to 2025-01-15
-  gosla list -m 2025-01 --thread --author U12345678
-  gosla list -d 2025-01-15 --mention U111 --mention @team
-  gosla list -m 2025-01 --channel general --channel random
-  gosla list -d 2025-01-15 --exclude-channel announcements`,
+  golack list --day 2025-01-15
+  golack list --month 2025-01
+  golack list --from 2025-01-01 --to 2025-01-15
+  golack list -m 2025-01 --thread --author U12345678
+  golack list -d 2025-01-15 --mention U111 --mention @team
+  golack list -m 2025-01 --channel general --channel random
+  golack list -d 2025-01-15 --exclude-channel announcements`,
 		RunE: runList,
 	}
 

@@ -3,8 +3,8 @@ package collector
 import (
 	"fmt"
 
-	"github.com/longkey1/gosla/internal/model"
-	"github.com/longkey1/gosla/internal/slack"
+	"github.com/longkey1/golack/internal/model"
+	"github.com/longkey1/golack/internal/slack"
 )
 
 // GetOptions contains options for the get command

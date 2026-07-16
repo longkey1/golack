@@ -22,9 +22,9 @@ builds:
         goarch: 386
     ldflags:
       - -s -w
-      - -X github.com/longkey1/gosla/internal/version.Version={{.Version}}
-      - -X github.com/longkey1/gosla/internal/version.CommitSHA={{.Commit}}
-      - -X github.com/longkey1/gosla/internal/version.BuildTime={{.Date}}
+      - -X github.com/longkey1/golack/internal/version.Version={{.Version}}
+      - -X github.com/longkey1/golack/internal/version.CommitSHA={{.Commit}}
+      - -X github.com/longkey1/golack/internal/version.BuildTime={{.Date}}
 
 archives:
   - name_template: >-

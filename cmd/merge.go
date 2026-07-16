@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/longkey1/gosla/internal/collector"
-	"github.com/longkey1/gosla/internal/input"
-	"github.com/longkey1/gosla/internal/model"
-	"github.com/longkey1/gosla/internal/output"
+	"github.com/longkey1/golack/internal/collector"
+	"github.com/longkey1/golack/internal/input"
+	"github.com/longkey1/golack/internal/model"
+	"github.com/longkey1/golack/internal/output"
 	"github.com/spf13/cobra"
 )
 
@@ -28,12 +28,12 @@ Thread deduplication: Threads with the same ThreadID are merged.
 Message deduplication: Messages with the same ID keep the one with the latest timestamp.
 
 Examples:
-  gosla merge ./logs
-  gosla merge --dir ./logs
-  gosla merge ./logs --pattern "slack*.json"
-  gosla merge ./logs -p "2025-*.json"
-  gosla merge ./logs --recursive
-  gosla merge ./logs -r -p "*.json"`,
+  golack merge ./logs
+  golack merge --dir ./logs
+  golack merge ./logs --pattern "slack*.json"
+  golack merge ./logs -p "2025-*.json"
+  golack merge ./logs --recursive
+  golack merge ./logs -r -p "*.json"`,
 		Args: cobra.MaximumNArgs(1),
 		RunE: runMerge,
 	}

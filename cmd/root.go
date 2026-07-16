@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/longkey1/gosla/internal/config"
+	"github.com/longkey1/golack/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -14,9 +14,9 @@ var (
 // NewRootCmd creates the root command
 func NewRootCmd() *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:   "gosla",
+		Use:   "golack",
 		Short: "Slack Log Collector CLI",
-		Long: `gosla is a CLI tool for collecting Slack messages.
+		Long: `golack is a CLI tool for collecting Slack messages.
 
 It supports:
   - Fetching messages by URL
@@ -30,7 +30,7 @@ It supports:
 
 	// Global flags
 	rootCmd.PersistentFlags().StringVar(&token, "token", "", "Slack API token (overrides SLACK_API_TOKEN)")
-	rootCmd.PersistentFlags().StringVar(&configPath, "config", "", "Path to config file (default: $XDG_CONFIG_HOME/gosla/config.toml)")
+	rootCmd.PersistentFlags().StringVar(&configPath, "config", "", "Path to config file (default: $XDG_CONFIG_HOME/golack/config.toml)")
 	rootCmd.PersistentFlags().BoolVar(&resolveIDs, "resolve-ids", false, "Resolve Slack user/channel IDs in message content to human-readable names")
 
 	// Add subcommands
