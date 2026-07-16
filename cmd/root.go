@@ -26,6 +26,8 @@ It supports:
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			config.SetConfigFile(configPath)
 		},
+		SilenceErrors: true,
+		SilenceUsage:  true,
 	}
 
 	// Global flags
