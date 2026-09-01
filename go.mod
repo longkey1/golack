@@ -3,7 +3,7 @@ module github.com/longkey1/golack
 go 1.26
 
 require (
-	github.com/slack-go/slack v0.27.0
+	github.com/slack-go/slack v0.29.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
 )
